@@ -17,7 +17,8 @@
                     <figure
                         v-for="item in album.items"
                         :key="item.id"
-                        class="group relative overflow-hidden rounded-2xl"
+                        class="group relative overflow-hidden rounded-2xl cursor-zoom-in"
+                        @click="openPreview(item)"
                     >
                         <img :src="item.image_url" :alt="item.title" class="h-60 w-full object-cover transition duration-500 group-hover:scale-110" />
                         <figcaption class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent p-4 text-white flex flex-col justify-end">
@@ -31,6 +32,22 @@
                 Album tidak ditemukan.
             </div>
         </section>
+
+        <div v-if="previewItem" class="modal-mask" @click.self="closePreview">
+            <div class="modal-body p-3">
+                <img :src="previewItem.image_url" :alt="previewItem.title" class="h-auto w-full rounded-lg" />
+                <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="text-sm">
+                        <p class="font-semibold text-slate-800">{{ previewItem.title }}</p>
+                        <p class="text-slate-500">{{ previewItem.caption }}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a :href="previewItem.image_url" :download="(previewItem.title || 'foto') + '.jpg'" target="_blank" rel="noopener" class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white">Download</a>
+                        <button class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700" @click="closePreview">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -42,6 +59,7 @@ import axios from 'axios';
 const route = useRoute();
 const album = ref(null);
 const loading = ref(false);
+const previewItem = ref(null);
 
 async function loadAlbum(slug) {
     if (!slug) {
@@ -66,4 +84,31 @@ watch(
         }
     }
 );
+
+function openPreview(item) {
+    previewItem.value = item;
+}
+
+function closePreview() {
+    previewItem.value = null;
+}
 </script>
+
+<style scoped>
+.modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    z-index: 50;
+}
+.modal-body {
+    max-width: 80rem;
+    max-height: 90vh;
+    overflow: auto;
+    background: white;
+    border-radius: 0.75rem;
+}
+</style>

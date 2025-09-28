@@ -90,7 +90,7 @@
                             </button>
                             <div class="hidden lg:block">
                                 <h2 class="text-lg font-semibold text-slate-800">{{ currentTitle }}</h2>
-                                <p class="text-xs text-slate-500">Kelola konten dan layanan digital Desa Sugihwaras</p>
+                                <p class="text-xs text-slate-500">Kelola konten dan layanan desa Sugihwaras</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
@@ -179,7 +179,7 @@ const sidebarCollapsed = ref(true);
 const menu = computed(() => [
     { label: 'Dashboard', to: '/admin', match: 'admin.dashboard', icon: Squares2X2Icon },
     { label: 'Berita Desa', to: '/admin/berita', match: 'admin.news', icon: NewspaperIcon },
-    { label: 'Layanan Digital', to: '/admin/layanan', match: 'admin.services', icon: BoltIcon },
+    { label: 'Layanan Desa', to: '/admin/layanan', match: 'admin.services', icon: BoltIcon },
     { label: 'Statistik Desa', to: '/admin/statistik', match: 'admin.statistics', icon: ChartBarIcon },
     { label: 'Galeri Desa', to: '/admin/galeri', match: 'admin.gallery', icon: PhotoIcon },
     { label: 'Perangkat Desa', to: '/admin/pejabat', match: 'admin.officials', icon: UsersIcon },
@@ -191,7 +191,9 @@ const titles = {
     'admin.news': 'Kelola Berita Desa',
     'admin.news.create': 'Tambah Berita',
     'admin.news.edit': 'Perbarui Berita',
-    'admin.services': 'Kelola Layanan Digital',
+    'admin.services': 'Kelola Layanan Desa',
+    'admin.services.create': 'Tambah Layanan Desa',
+    'admin.services.edit': 'Perbarui Layanan Desa',
     'admin.statistics': 'Kelola Statistik Desa',
     'admin.gallery': 'Kelola Galeri Desa',
     'admin.officials': 'Kelola Perangkat Desa',
@@ -232,3 +234,5 @@ function activeMatch(match) {
     opacity: 0;
 }
 </style>
+
+

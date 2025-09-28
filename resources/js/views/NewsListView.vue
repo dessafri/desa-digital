@@ -67,7 +67,7 @@
                             <RouterLink :to="/berita/" class="block text-lg font-semibold text-slate-900 hover:text-primary line-clamp-2">
                                 {{ post.title }}
                             </RouterLink>
-                            <p class="text-sm text-slate-600 line-clamp-3">{{ post.excerpt }}</p>
+                            <p class="text-sm text-slate-600 line-clamp-3">{{ plainText(post.excerpt) }}</p>
                             <RouterLink :to="/berita/" class="inline-flex items-center gap-2 text-sm font-semibold text-primary">
                                 Baca Selengkapnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -162,6 +162,11 @@ function formatDate(date) {
         month: 'long',
         year: 'numeric',
     }).format(new Date(date));
+}
+
+function plainText(html) {
+    if (!html) return '';
+    return String(html).replace(/<[^>]*>/g, '');
 }
 
 onMounted(async () => {

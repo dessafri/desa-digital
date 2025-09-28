@@ -7,14 +7,13 @@
         "preview": "vite preview --host"
     },
     "dependencies": {
-        "@ckeditor/ckeditor5-build-classic": "^41.4.2",
-        "@ckeditor/ckeditor5-vue": "^7.3.0",
         "@headlessui/vue": "^1.7.22",
         "@heroicons/vue": "^2.1.4",
         "axios": "^1.7.4",
         "pinia": "^2.1.7",
         "vue": "^3.4.30",
-        "vue-router": "^4.4.2"
+        "vue-router": "^4.4.2",
+        "sweetalert2": "^11.12.4"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.9",

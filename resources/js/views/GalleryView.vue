@@ -15,15 +15,15 @@
                 <RouterLink
                     v-for="album in albums"
                     :key="album.id"
-                    :to="/galeri/"
+                    :to="`/galeri/${album.slug || album.id}`"
                     class="group overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-md transition hover:-translate-y-2"
                 >
                     <div class="relative h-64 overflow-hidden">
-                        <img :src="album.cover_image || album.items?.[0]?.image_url" :alt="album.title" class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+                        <img :src="album.items?.[0]?.image_url" :alt="album.title" class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent"></div>
                         <div class="absolute bottom-0 p-6 text-white">
                             <h2 class="text-xl font-semibold">{{ album.title }}</h2>
-                            <p class="mt-2 text-xs text-white/80 line-clamp-2">{{ album.description }}</p>
+                            <p class="mt-2 text-xs text-white/80 line-clamp-2" v-html="album.description"></p>
                         </div>
                     </div>
                     <div class="p-6 border-t border-slate-100">

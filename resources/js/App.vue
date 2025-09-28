@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex flex-col bg-slate-50">
         <MainHeader v-if="!isAdminRoute" />
-        <main class="flex-1">
+        <main :class="mainClass">
             <RouterView v-slot="{ Component, route }">
                 <Transition name="fade" mode="out-in" appear>
                     <component :is="Component" :key="route.fullPath" />
@@ -23,6 +23,12 @@ const route = useRoute();
 const siteStore = useSiteStore();
 
 const isAdminRoute = computed(() => route.path.startsWith('/admin'));
+
+const mainClass = computed(() => {
+    if (isAdminRoute.value) return 'flex-1';
+    // Tambahkan offset header fixed untuk semua halaman user selain beranda
+    return route.path === '/' ? 'flex-1' : 'flex-1 pt-20';
+});
 
 onMounted(() => {
     siteStore.bootstrap();

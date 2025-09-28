@@ -55,9 +55,31 @@ const router = createRouter({
                     component: () => import('../views/admin/AdminNewsView.vue'),
                 },
                 {
+                    path: 'berita/tambah',
+                    name: 'admin.news.create',
+                    component: () => import('../views/admin/AdminNewsEditorView.vue'),
+                },
+                {
+                    path: 'berita/:id/edit',
+                    name: 'admin.news.edit',
+                    component: () => import('../views/admin/AdminNewsEditorView.vue'),
+                    props: true,
+                },
+                {
                     path: 'layanan',
                     name: 'admin.services',
                     component: () => import('../views/admin/AdminServiceView.vue'),
+                },
+                {
+                    path: 'layanan/tambah',
+                    name: 'admin.services.create',
+                    component: () => import('../views/admin/AdminServiceEditorView.vue'),
+                },
+                {
+                    path: 'layanan/:id/edit',
+                    name: 'admin.services.edit',
+                    component: () => import('../views/admin/AdminServiceEditorView.vue'),
+                    props: true,
                 },
                 {
                     path: 'statistik',

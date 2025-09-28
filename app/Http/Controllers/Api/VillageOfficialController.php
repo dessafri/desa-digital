@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\VillageOfficial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class VillageOfficialController extends Controller
 {
@@ -58,5 +59,18 @@ class VillageOfficialController extends Controller
         $villageOfficial->delete();
 
         return response()->json(['message' => 'Village official deleted']);
+    }
+
+    public function uploadPhoto(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|file|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        $file = $request->file('file');
+        $path = $file->store('officials', 'public');
+        $url = Storage::url($path);
+
+        return response()->json(['url' => $url], 201);
     }
 }

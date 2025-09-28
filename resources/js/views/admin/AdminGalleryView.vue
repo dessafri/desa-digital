@@ -57,41 +57,78 @@
                     </label>
                     <label class="md:col-span-2 text-xs font-semibold text-slate-500 space-y-1">
                         Deskripsi
-                        <textarea v-model="selected.description" rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2"></textarea>
+                        <jodit-editor
+                            :jsUrl="joditJsUrl"
+                            :cssUrl="joditCssUrl"
+                            v-model="selected.description"
+                            :config="descEditorConfig"
+                        />
                     </label>
-                    <label class="md:col-span-2 text-xs font-semibold text-slate-500 space-y-1">
-                        Gambar Sampul (URL)
-                        <input v-model="selected.cover_image" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2" />
-                    </label>
+                    
+                </div>
+
+                <div class="mt-8 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
+                    <h3 class="text-sm font-semibold text-slate-700">Upload Kegiatan (Multiple)</h3>
+                    <div class="mt-3 grid gap-3 md:grid-cols-[1fr_auto]">
+                        <div class="grid gap-2 text-xs font-semibold text-slate-500">
+                            <label class="space-y-1">
+                                Album Tujuan
+                                <select v-model="uploadTargetAlbumId" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                                    <option v-for="album in albums" :key="album._key" :value="album.id">{{ album.title || '(Album Baru)' }}</option>
+                                </select>
+                            </label>
+                            <label class="space-y-1">
+                                Pilih Gambar (bisa banyak)
+                                <input type="file" accept="image/*" multiple @change="onFilesSelected" class="block w-full text-sm" />
+                            </label>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <button class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60" :disabled="!pendingFiles.length || uploading" @click="uploadAll">
+                                {{ uploading ? 'Mengunggah...' : 'Upload Semua' }}
+                            </button>
+                            <button class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 disabled:opacity-60" :disabled="!pendingFiles.length || uploading" @click="clearPending">
+                                Bersihkan
+                            </button>
+                        </div>
+                    </div>
+
+                    <div v-if="pendingFiles.length" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                        <div v-for="(item, idx) in pendingPreviews" :key="idx" class="group cursor-pointer overflow-hidden rounded-lg border bg-white shadow-sm" @click="openPreview(item.url)">
+                            <img :src="item.url" :alt="item.name" class="h-28 w-full object-cover transition group-hover:scale-105" />
+                            <div class="p-2 text-[11px] font-semibold text-slate-500 truncate">{{ item.name }}</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-10 flex items-center justify-between">
                     <h3 class="text-md font-semibold text-slate-900">Foto dalam Album</h3>
-                    <button class="text-xs font-semibold text-primary" @click="addGalleryItem">Tambah Foto</button>
+                    <span class="text-xs text-slate-400">Seret kartu untuk mengubah urutan</span>
                 </div>
 
                 <div class="mt-4 space-y-4">
                     <article
-                        v-for="item in galleryItems"
+                        v-for="(item, idx) in galleryItems"
                         :key="item._key"
-                        class="rounded-xl border border-slate-100 bg-slate-50 p-4"
+                        class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition"
+                        draggable="true"
+                        @dragstart="onDragStart(idx)"
+                        @dragenter.prevent="onDragEnter(idx)"
+                        @dragover.prevent
+                        @drop.prevent="onDrop(idx)"
+                        @dragend="onDragEnd"
+                        :class="idx === dragOverIndex ? 'ring-2 ring-primary/40' : ''"
                     >
                         <div class="grid gap-4 md:grid-cols-4 text-xs font-semibold text-slate-500">
-                            <label class="space-y-1 md:col-span-2">
-                                Judul
-                                <input v-model="item.title" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-                            </label>
-                            <label class="space-y-1 md:col-span-2">
+                            <div class="space-y-1">
+                                Pratinjau
+                                <div class="overflow-hidden rounded-md border bg-white" v-if="item.image_url">
+                                    <img :src="item.image_url" class="h-20 w-full object-cover cursor-pointer" @click="openPreview(item.image_url)" />
+                                </div>
+                                <div v-else class="h-20 w-full rounded-md border bg-white grid place-items-center text-slate-400">Tidak ada</div>
+                            </div>
+                            <label class="space-y-1 md:col-span-3">
                                 Caption
                                 <input v-model="item.caption" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-                            </label>
-                            <label class="space-y-1 md:col-span-3">
-                                URL Gambar
-                                <input v-model="item.image_url" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-                            </label>
-                            <label class="space-y-1">
-                                Urutan
-                                <input v-model.number="item.order" type="number" min="0" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
                             </label>
                         </div>
                         <div class="mt-3 flex justify-between text-xs font-semibold">
@@ -109,16 +146,39 @@
                 Pilih album untuk melihat detail.
             </div>
         </section>
+
+        <!-- Modal Preview -->
+        <div v-if="previewUrl" class="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4" @click.self="closePreview">
+            <div class="max-h-[90vh] max-w-5xl overflow-auto rounded-xl bg-white p-3">
+                <img :src="previewUrl" alt="Preview" class="h-auto w-full" />
+                <div class="mt-3 text-right">
+                    <button class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white" @click="closePreview">Tutup</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 import axios from 'axios';
+import notify from '../../utils/notify';
+import { JODIT_JS_CDN, JODIT_CSS_CDN, createJoditConfig } from '../../utils/jodit';
+
+const joditJsUrl = JODIT_JS_CDN;
+const joditCssUrl = JODIT_CSS_CDN;
+const descEditorConfig = createJoditConfig({ minHeight: 200 });
 
 const albums = reactive([]);
 const selected = ref(null);
 const galleryItems = reactive([]);
+const uploadTargetAlbumId = ref(null);
+const pendingFiles = reactive([]);
+const pendingPreviews = reactive([]);
+const uploading = ref(false);
+const previewUrl = ref('');
+const dragIndex = ref(null);
+const dragOverIndex = ref(null);
 
 const activeKey = computed(() => selected.value?._key ?? null);
 
@@ -191,6 +251,7 @@ function createAlbum() {
 function selectAlbum(album) {
     selected.value = album;
     galleryItems.splice(0, galleryItems.length, ...(album.items ?? []).map(decorateItem));
+    uploadTargetAlbumId.value = album.id ?? null;
 }
 
 async function saveAlbum(album) {
@@ -198,20 +259,27 @@ async function saveAlbum(album) {
         title: album.title,
         slug: album.slug || null,
         description: album.description || null,
-        cover_image: album.cover_image || null,
+        cover_image: null,
     };
 
-    if (album.id) {
-        const { data } = await axios.put(`/gallery-albums/${album.id}`, payload);
-        Object.assign(album, decorateAlbum({ ...data, items: album.items }));
-    } else {
-        const { data } = await axios.post('/gallery-albums', payload);
-        Object.assign(album, decorateAlbum({ ...data, items: [] }));
-    }
+    try {
+        if (album.id) {
+            const { data } = await axios.put(`/gallery-albums/${album.id}`, payload);
+            Object.assign(album, decorateAlbum({ ...data, items: album.items }));
+            notify.success('Album diperbarui');
+        } else {
+            const { data } = await axios.post('/gallery-albums', payload);
+            Object.assign(album, decorateAlbum({ ...data, items: [] }));
+            notify.success('Album dibuat');
+        }
 
-    syncAlbumItems();
-    if (!album.id) {
-        selectAlbum(album);
+        syncAlbumItems();
+        if (!album.id) {
+            selectAlbum(album);
+        }
+    } catch (e) {
+        console.error(e);
+        notify.error('Gagal menyimpan album');
     }
 }
 
@@ -220,7 +288,14 @@ async function removeAlbum(album) {
         if (!confirm(`Hapus album "${album.title || 'album'}"?`)) {
             return;
         }
-        await axios.delete(`/gallery-albums/${album.id}`);
+        try {
+            await axios.delete(`/gallery-albums/${album.id}`);
+            notify.success('Album dihapus');
+        } catch (e) {
+            console.error(e);
+            notify.error('Gagal menghapus album');
+            return;
+        }
     }
     const index = albums.findIndex((item) => item._key === album._key);
     if (index !== -1) {
@@ -251,15 +326,21 @@ async function saveGalleryItem(item) {
         order: Number(item.order) || 0,
     };
 
-    if (item.id) {
-        const { data } = await axios.put(`/gallery-items/${item.id}`, payload);
-        Object.assign(item, decorateItem({ ...data }));
-    } else {
-        const { data } = await axios.post('/gallery-items', payload);
-        Object.assign(item, decorateItem({ ...data }));
+    try {
+        if (item.id) {
+            const { data } = await axios.put(`/gallery-items/${item.id}`, payload);
+            Object.assign(item, decorateItem({ ...data }));
+            notify.success('Foto diperbarui');
+        } else {
+            const { data } = await axios.post('/gallery-items', payload);
+            Object.assign(item, decorateItem({ ...data }));
+            notify.success('Foto ditambahkan');
+        }
+        syncAlbumItems();
+    } catch (e) {
+        console.error(e);
+        notify.error('Gagal menyimpan foto');
     }
-
-    syncAlbumItems();
 }
 
 async function removeGalleryItem(item) {
@@ -267,7 +348,14 @@ async function removeGalleryItem(item) {
         if (!confirm('Hapus foto ini?')) {
             return;
         }
-        await axios.delete(`/gallery-items/${item.id}`);
+        try {
+            await axios.delete(`/gallery-items/${item.id}`);
+            notify.success('Foto dihapus');
+        } catch (e) {
+            console.error(e);
+            notify.error('Gagal menghapus foto');
+            return;
+        }
     }
     const index = galleryItems.findIndex((photo) => photo._key === item._key);
     if (index !== -1) {
@@ -277,4 +365,108 @@ async function removeGalleryItem(item) {
 }
 
 onMounted(loadAlbums);
+
+function onFilesSelected(event) {
+    const files = Array.from(event.target.files || []);
+    pendingFiles.splice(0, pendingFiles.length, ...files);
+    pendingPreviews.splice(0, pendingPreviews.length, ...files.map((f) => ({ name: f.name, url: URL.createObjectURL(f) })));
+}
+
+function clearPending() {
+    pendingFiles.splice(0, pendingFiles.length);
+    pendingPreviews.forEach((p) => URL.revokeObjectURL(p.url));
+    pendingPreviews.splice(0, pendingPreviews.length);
+}
+
+async function uploadAll() {
+    if (!pendingFiles.length || uploading.value) return;
+    const albumId = uploadTargetAlbumId.value || selected.value?.id;
+    if (!albumId) {
+        alert('Pilih album tujuan terlebih dahulu.');
+        return;
+    }
+    const form = new FormData();
+    form.append('gallery_album_id', String(albumId));
+    pendingFiles.forEach((file) => form.append('files[]', file));
+    uploading.value = true;
+    try {
+        const { data } = await axios.post('/gallery-items/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+        const created = Array.isArray(data) ? data : [];
+        const items = created.map(decorateItem);
+        const targetAlbum = albums.find((a) => a.id === albumId);
+        if (targetAlbum) {
+            targetAlbum.items = [...(targetAlbum.items || []), ...items.map((it) => plainItem(it))];
+        }
+        if (selected.value?.id === albumId) {
+            galleryItems.splice(0, 0, ...items); // prepend
+            syncAlbumItems();
+        }
+        clearPending();
+        notify.success('Upload selesai');
+    } catch (e) {
+        console.error(e);
+        notify.error('Upload gagal');
+    } finally {
+        uploading.value = false;
+    }
+}
+
+function openPreview(url) {
+    previewUrl.value = url;
+}
+
+function closePreview() {
+    previewUrl.value = '';
+}
+
+function onDragStart(index) {
+    dragIndex.value = index;
+}
+
+function onDragEnter(index) {
+    if (dragIndex.value === null) return;
+    dragOverIndex.value = index;
+}
+
+async function onDrop(index) {
+    if (dragIndex.value === null) return;
+    const from = dragIndex.value;
+    const to = index;
+    if (from !== to) {
+        const [moved] = galleryItems.splice(from, 1);
+        galleryItems.splice(to, 0, moved);
+        // Recalculate orders
+        galleryItems.forEach((it, i) => (it.order = i));
+        await persistOrder();
+        syncAlbumItems();
+    }
+    dragIndex.value = null;
+    dragOverIndex.value = null;
+}
+
+function onDragEnd() {
+    dragIndex.value = null;
+    dragOverIndex.value = null;
+}
+
+async function persistOrder() {
+    try {
+        const updates = galleryItems
+            .filter((it) => it.id)
+            .map((it, i) => axios.put(`/gallery-items/${it.id}`, { order: i }));
+        if (updates.length) {
+            await Promise.all(updates);
+            notify.success('Urutan tersimpan');
+        }
+    } catch (e) {
+        console.error('Gagal menyimpan urutan:', e);
+        notify.error('Gagal menyimpan urutan');
+    }
+}
 </script>
+
+<style scoped>
+article[draggable="true"] {
+    cursor: move;
+}
+</style>

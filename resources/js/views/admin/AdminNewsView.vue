@@ -7,16 +7,18 @@
                 <p class="text-sm text-slate-500">Kelola rilis berita yang terbit maupun masih draft dalam satu tempat.</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-                <router-link
-                    :to="{ name: 'admin.news.create' }"
+                <button
+                    type="button"
                     class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90"
+                    @click="goToCreate"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v12m6-6H6" />
                     </svg>
                     Tambah Berita
-                </router-link>
+                </button>
                 <button
+                    type="button"
                     class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-primary hover:text-primary"
                     @click="loadNews()"
                 >
@@ -88,12 +90,13 @@
                         <div class="mt-5 flex items-center justify-between text-xs font-semibold">
                             <p class="text-slate-400">{{ post.category?.name ?? 'Tanpa kategori' }}</p>
                             <div class="flex items-center gap-4">
-                                <router-link
-                                    :to="{ name: 'admin.news.edit', params: { id: post.id } }"
+                                <button
+                                    type="button"
                                     class="text-primary hover:text-primary/80"
+                                    @click="goToEdit(post.id)"
                                 >
                                     Ubah
-                                </router-link>
+                                </button>
                                 <button class="text-rose-500 hover:text-rose-400" @click="deletePost(post)">Hapus</button>
                             </div>
                         </div>
@@ -110,7 +113,18 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
+
+const router = useRouter();
+
+const goToCreate = () => {
+    router.push('/admin/berita/tambah');
+};
+
+const goToEdit = (id) => {
+    router.push(`/admin/berita/${id}/edit`);
+};
 
 const tabs = [
     { id: 'all', label: 'Semua' },
@@ -174,14 +188,29 @@ function statusPillClass(status) {
 async function loadNews() {
     loading.value = true;
     try {
-        const { data } = await axios.get('/news', {
+        const response = await axios.get('/news', {
             params: {
-                include_draft: true,
+                include_draft: 1,
                 per_page: 100,
-                order: 'desc',
             },
         });
-        posts.value = (data.data ?? []).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        const payload = response.data;
+        const rows = Array.isArray(payload)
+            ? payload
+            : Array.isArray(payload?.data)
+            ? payload.data
+            : Array.isArray(payload?.data?.data)
+            ? payload.data.data
+            : [];
+        posts.value = rows
+            .map((item) => ({
+                ...item,
+                status: item.status || (item.published_at ? 'published' : 'draft'),
+            }))
+            .sort((a, b) =>
+                new Date(b.published_at || b.updated_at || b.created_at || 0) -
+                new Date(a.published_at || a.updated_at || a.created_at || 0)
+            );
     } finally {
         loading.value = false;
     }
@@ -208,3 +237,4 @@ function formatDate(date) {
 
 onMounted(loadNews);
 </script>
+

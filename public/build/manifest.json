@@ -1,22 +1,22 @@
 {
-  "_UsersIcon-44027e70.js": {
-    "file": "assets/UsersIcon-44027e70.js",
-    "imports": [
-      "resources/js/app.js"
-    ]
+  "_jodit-11da9fd9.js": {
+    "file": "assets/jodit-11da9fd9.js"
+  },
+  "_notify-9318a045.js": {
+    "file": "assets/notify-9318a045.js"
   },
   "resources/css/app.css": {
-    "file": "assets/app-ffb53b4c.css",
+    "file": "assets/app-5d801e3e.css",
     "isEntry": true,
     "src": "resources/css/app.css"
   },
   "resources/js/app.css": {
-    "file": "assets/app-b172677c.css",
+    "file": "assets/app-94be28e7.css",
     "src": "resources/js/app.css"
   },
   "resources/js/app.js": {
     "css": [
-      "assets/app-b172677c.css"
+      "assets/app-94be28e7.css"
     ],
     "dynamicImports": [
       "resources/js/views/ProfileView.vue",
@@ -27,19 +27,30 @@
       "resources/js/views/admin/AdminLayout.vue",
       "resources/js/views/admin/AdminDashboard.vue",
       "resources/js/views/admin/AdminNewsView.vue",
+      "resources/js/views/admin/AdminNewsEditorView.vue",
+      "resources/js/views/admin/AdminNewsEditorView.vue",
       "resources/js/views/admin/AdminServiceView.vue",
+      "resources/js/views/admin/AdminServiceEditorView.vue",
+      "resources/js/views/admin/AdminServiceEditorView.vue",
       "resources/js/views/admin/AdminStatisticView.vue",
       "resources/js/views/admin/AdminGalleryView.vue",
       "resources/js/views/admin/AdminOfficialView.vue",
       "resources/js/views/admin/AdminSettingView.vue",
       "resources/js/views/NotFoundView.vue"
     ],
-    "file": "assets/app-7ddd2cfa.js",
+    "file": "assets/app-0010789c.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },
+  "resources/js/views/GalleryDetailView.css": {
+    "file": "assets/GalleryDetailView-aafa4345.css",
+    "src": "resources/js/views/GalleryDetailView.css"
+  },
   "resources/js/views/GalleryDetailView.vue": {
-    "file": "assets/GalleryDetailView-59c8dffb.js",
+    "css": [
+      "assets/GalleryDetailView-aafa4345.css"
+    ],
+    "file": "assets/GalleryDetailView-db713331.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -47,7 +58,7 @@
     "src": "resources/js/views/GalleryDetailView.vue"
   },
   "resources/js/views/GalleryView.vue": {
-    "file": "assets/GalleryView-f71ed953.js",
+    "file": "assets/GalleryView-735b8d7a.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -55,7 +66,7 @@
     "src": "resources/js/views/GalleryView.vue"
   },
   "resources/js/views/NewsDetailView.vue": {
-    "file": "assets/NewsDetailView-fb6b6cdf.js",
+    "file": "assets/NewsDetailView-cae330eb.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -63,7 +74,7 @@
     "src": "resources/js/views/NewsDetailView.vue"
   },
   "resources/js/views/NewsListView.vue": {
-    "file": "assets/NewsListView-068555d6.js",
+    "file": "assets/NewsListView-e94babde.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -71,7 +82,7 @@
     "src": "resources/js/views/NewsListView.vue"
   },
   "resources/js/views/NotFoundView.vue": {
-    "file": "assets/NotFoundView-c5c12495.js",
+    "file": "assets/NotFoundView-15ece2ad.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -79,7 +90,7 @@
     "src": "resources/js/views/NotFoundView.vue"
   },
   "resources/js/views/ProfileView.vue": {
-    "file": "assets/ProfileView-ff123aa4.js",
+    "file": "assets/ProfileView-0f493f36.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -94,56 +105,89 @@
     "css": [
       "assets/AdminDashboard-a210140e.css"
     ],
-    "file": "assets/AdminDashboard-d6e5f0a8.js",
+    "file": "assets/AdminDashboard-35eed8c5.js",
     "imports": [
-      "resources/js/app.js",
-      "_UsersIcon-44027e70.js"
+      "resources/js/app.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/views/admin/AdminDashboard.vue"
   },
+  "resources/js/views/admin/AdminGalleryView.css": {
+    "file": "assets/AdminGalleryView-feaf7c9f.css",
+    "src": "resources/js/views/admin/AdminGalleryView.css"
+  },
   "resources/js/views/admin/AdminGalleryView.vue": {
-    "file": "assets/AdminGalleryView-f1381ca7.js",
+    "css": [
+      "assets/AdminGalleryView-feaf7c9f.css"
+    ],
+    "file": "assets/AdminGalleryView-3883f09f.js",
     "imports": [
-      "resources/js/app.js"
+      "resources/js/app.js",
+      "_notify-9318a045.js",
+      "_jodit-11da9fd9.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/views/admin/AdminGalleryView.vue"
   },
   "resources/js/views/admin/AdminLayout.css": {
-    "file": "assets/AdminLayout-35eae7b4.css",
+    "file": "assets/AdminLayout-1be93c5a.css",
     "src": "resources/js/views/admin/AdminLayout.css"
   },
   "resources/js/views/admin/AdminLayout.vue": {
     "css": [
-      "assets/AdminLayout-35eae7b4.css"
+      "assets/AdminLayout-1be93c5a.css"
     ],
-    "file": "assets/AdminLayout-6041a49a.js",
+    "file": "assets/AdminLayout-133a78d7.js",
     "imports": [
-      "resources/js/app.js",
-      "_UsersIcon-44027e70.js"
+      "resources/js/app.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/views/admin/AdminLayout.vue"
   },
+  "resources/js/views/admin/AdminNewsEditorView.vue": {
+    "file": "assets/AdminNewsEditorView-1f94697c.js",
+    "imports": [
+      "resources/js/app.js",
+      "_jodit-11da9fd9.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/views/admin/AdminNewsEditorView.vue"
+  },
   "resources/js/views/admin/AdminNewsView.vue": {
-    "file": "assets/AdminNewsView-15872745.js",
+    "file": "assets/AdminNewsView-78a79c78.js",
     "imports": [
       "resources/js/app.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/views/admin/AdminNewsView.vue"
   },
+  "resources/js/views/admin/AdminOfficialView.css": {
+    "file": "assets/AdminOfficialView-f83cd0a8.css",
+    "src": "resources/js/views/admin/AdminOfficialView.css"
+  },
   "resources/js/views/admin/AdminOfficialView.vue": {
-    "file": "assets/AdminOfficialView-8fbd7e11.js",
+    "css": [
+      "assets/AdminOfficialView-f83cd0a8.css"
+    ],
+    "file": "assets/AdminOfficialView-a898ca26.js",
     "imports": [
-      "resources/js/app.js"
+      "resources/js/app.js",
+      "_notify-9318a045.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/views/admin/AdminOfficialView.vue"
   },
+  "resources/js/views/admin/AdminServiceEditorView.vue": {
+    "file": "assets/AdminServiceEditorView-c875927d.js",
+    "imports": [
+      "resources/js/app.js",
+      "_jodit-11da9fd9.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/views/admin/AdminServiceEditorView.vue"
+  },
   "resources/js/views/admin/AdminServiceView.vue": {
-    "file": "assets/AdminServiceView-833b3a24.js",
+    "file": "assets/AdminServiceView-8434e953.js",
     "imports": [
       "resources/js/app.js"
     ],
@@ -151,17 +195,27 @@
     "src": "resources/js/views/admin/AdminServiceView.vue"
   },
   "resources/js/views/admin/AdminSettingView.vue": {
-    "file": "assets/AdminSettingView-20d4fec6.js",
+    "file": "assets/AdminSettingView-4c30ac70.js",
     "imports": [
-      "resources/js/app.js"
+      "resources/js/app.js",
+      "_notify-9318a045.js",
+      "_jodit-11da9fd9.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/views/admin/AdminSettingView.vue"
   },
+  "resources/js/views/admin/AdminStatisticView.css": {
+    "file": "assets/AdminStatisticView-b65f8d0a.css",
+    "src": "resources/js/views/admin/AdminStatisticView.css"
+  },
   "resources/js/views/admin/AdminStatisticView.vue": {
-    "file": "assets/AdminStatisticView-b2084222.js",
+    "css": [
+      "assets/AdminStatisticView-b65f8d0a.css"
+    ],
+    "file": "assets/AdminStatisticView-a6197819.js",
     "imports": [
-      "resources/js/app.js"
+      "resources/js/app.js",
+      "_notify-9318a045.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/views/admin/AdminStatisticView.vue"

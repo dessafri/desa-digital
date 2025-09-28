@@ -23,6 +23,7 @@ Route::apiResource('news-categories', NewsCategoryController::class);
 Route::apiResource('services', ServiceController::class);
 Route::apiResource('statistics', StatisticController::class);
 Route::apiResource('village-officials', VillageOfficialController::class);
+Route::post('/village-officials/upload-photo', [VillageOfficialController::class, 'uploadPhoto']);
 
 Route::get('/gallery-albums/slug/{slug}', [GalleryController::class, 'showBySlug']);
 
@@ -32,5 +33,8 @@ Route::apiResource('gallery-albums', GalleryController::class)->parameters([
 Route::apiResource('gallery-items', GalleryItemController::class)->parameters([
     'gallery-items' => 'galleryItem',
 ]);
+Route::post('/gallery-items/upload', [GalleryItemController::class, 'upload']);
 
 Route::apiResource('settings', SettingController::class);
+Route::post('/settings/upload-hero', [SettingController::class, 'uploadHero']);
+Route::post('/settings/upload-image', [SettingController::class, 'uploadImage']);

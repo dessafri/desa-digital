@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -14,7 +13,7 @@ class NewsController extends Controller
     {
         $query = NewsPost::with('category');
 
-        if (!$request->boolean('include_draft', false)) {
+        if (! $request->boolean('include_draft', false)) {
             $query->published();
         } elseif ($status = $request->query('status')) {
             $query->where('status', $status);
@@ -33,25 +32,25 @@ class NewsController extends Controller
             });
         }
 
-        $perPage = min($request->integer('per_page', 6), 50);
+        $perPage = $validated['per_page'] ?? 6;
 
         $posts = $query->latest('published_at')->paginate($perPage);
-
         return response()->json($posts);
+
     }
 
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
             'news_category_id' => 'nullable|exists:news_categories,id',
-            'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:news_posts,slug',
-            'excerpt' => 'nullable|string',
-            'body' => 'required|string',
-            'cover_image' => 'nullable|string|max:255',
-            'status' => 'nullable|in:draft,published',
-            'published_at' => 'nullable|date',
-            'meta' => 'nullable|array',
+            'title'            => 'required|string|max:255',
+            'slug'             => 'nullable|string|max:255|unique:news_posts,slug',
+            'excerpt'          => 'nullable|string',
+            'body'             => 'required|string',
+            'cover_image'      => 'nullable|string|max:255',
+            'status'           => 'nullable|in:draft,published',
+            'published_at'     => 'nullable|date',
+            'meta'             => 'nullable|array',
         ]);
 
         if (empty($data['slug'])) {
@@ -64,7 +63,7 @@ class NewsController extends Controller
             $data['published_at'] = now();
         }
 
-        if (!empty($data['meta'])) {
+        if (! empty($data['meta'])) {
             $data['meta'] = json_encode($data['meta']);
         }
 
@@ -91,23 +90,23 @@ class NewsController extends Controller
     {
         $data = $request->validate([
             'news_category_id' => 'nullable|exists:news_categories,id',
-            'title' => 'sometimes|required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:news_posts,slug,' . $news->id,
-            'excerpt' => 'nullable|string',
-            'body' => 'nullable|string',
-            'cover_image' => 'nullable|string|max:255',
-            'status' => 'nullable|in:draft,published',
-            'published_at' => 'nullable|date',
-            'meta' => 'nullable|array',
+            'title'            => 'sometimes|required|string|max:255',
+            'slug'             => 'nullable|string|max:255|unique:news_posts,slug,' . $news->id,
+            'excerpt'          => 'nullable|string',
+            'body'             => 'nullable|string',
+            'cover_image'      => 'nullable|string|max:255',
+            'status'           => 'nullable|in:draft,published',
+            'published_at'     => 'nullable|date',
+            'meta'             => 'nullable|array',
         ]);
 
-        if (!empty($data['title']) && empty($data['slug'])) {
+        if (! empty($data['title']) && empty($data['slug'])) {
             $data['slug'] = $this->generateSlug($data['title'], $news->id);
-        } elseif (!empty($data['slug'])) {
+        } elseif (! empty($data['slug'])) {
             $data['slug'] = Str::slug($data['slug']);
         }
 
-        if (!empty($data['meta'])) {
+        if (! empty($data['meta'])) {
             $data['meta'] = json_encode($data['meta']);
         }
 
@@ -129,9 +128,9 @@ class NewsController extends Controller
 
     protected function generateSlug(string $title, int $ignoreId = null): string
     {
-        $slug = Str::slug($title);
+        $slug     = Str::slug($title);
         $original = $slug;
-        $counter = 1;
+        $counter  = 1;
 
         while (NewsPost::where('slug', $slug)
             ->when($ignoreId, function ($query) use ($ignoreId) {

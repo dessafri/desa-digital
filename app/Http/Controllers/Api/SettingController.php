@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
@@ -82,5 +83,36 @@ class SettingController extends Controller
         }
 
         return $value;
+    }
+
+    public function uploadHero(Request $request): JsonResponse
+    {
+        $request->validate([
+            'files' => 'required',
+            'files.*' => 'file|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        $files = $request->file('files');
+        if (!$files) {
+            return response()->json(['message' => 'No files uploaded'], 422);
+        }
+
+        $urls = [];
+        foreach ($files as $file) {
+            $path = $file->store('hero', 'public');
+            $urls[] = Storage::url($path);
+        }
+
+        return response()->json($urls, 201);
+    }
+
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|file|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+        $file = $request->file('file');
+        $path = $file->store('settings', 'public');
+        return response()->json(['url' => Storage::url($path)], 201);
     }
 }

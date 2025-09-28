@@ -15,10 +15,20 @@
                 <div class="h-10 w-10 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
             </div>
             <div v-else class="space-y-4">
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span title="Seret kartu untuk mengubah urutan">Seret kartu untuk mengubah urutan</span>
+                </div>
                 <article
-                    v-for="item in statistics"
+                    v-for="(item, idx) in statistics"
                     :key="item._key"
-                    class="rounded-xl border border-slate-100 bg-slate-50 p-4"
+                    class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition"
+                    draggable="true"
+                    @dragstart="onDragStart(idx)"
+                    @dragenter.prevent="onDragEnter(idx)"
+                    @dragover.prevent
+                    @drop.prevent="onDrop(idx)"
+                    @dragend="onDragEnd"
+                    :class="idx === dragOverIndex ? 'ring-2 ring-primary/40' : ''"
                 >
                     <div class="grid gap-4 md:grid-cols-4">
                         <label class="text-xs font-semibold text-slate-500 space-y-1 md:col-span-2">
@@ -29,14 +39,15 @@
                             Nilai
                             <input v-model.number="item.value" type="number" min="0" class="w-full rounded-lg border border-slate-200 px-3 py-2" />
                         </label>
-                        <label class="text-xs font-semibold text-slate-500 space-y-1">
-                            Ikon
-                            <input v-model="item.icon" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2" />
-                        </label>
-                        <label class="text-xs font-semibold text-slate-500 space-y-1">
-                            Urutan
-                            <input v-model.number="item.order" type="number" min="0" class="w-full rounded-lg border border-slate-200 px-3 py-2" />
-                        </label>
+                        <div class="text-xs font-semibold text-slate-500 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span>Ikon</span>
+                                <span v-if="item.icon" class="inline-flex items-center gap-1 text-[11px] text-slate-400">
+                                    <component :is="Icons[item.icon]" class="h-4 w-4" />
+                                </span>
+                            </div>
+                            <IconPicker v-model="item.icon" />
+                        </div>
                     </div>
                     <div class="mt-4 flex justify-between text-xs font-semibold">
                         <span class="text-slate-400">{{ item.id ? 'Statistik tersimpan' : 'Statistik baru' }}</span>
@@ -55,6 +66,9 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import axios from 'axios';
+import IconPicker from '../../components/IconPicker.vue';
+import * as Icons from '@heroicons/vue/24/outline';
+import notify from '../../utils/notify';
 
 const loading = ref(false);
 const statistics = reactive([]);
@@ -85,19 +99,24 @@ function addRow() {
 }
 
 async function saveItem(item) {
-    const payload = {
-        label: item.label,
-        value: Number(item.value) || 0,
-        icon: item.icon || null,
-        order: Number(item.order) || 0,
-    };
-
-    if (item.id) {
-        const { data } = await axios.put(`/statistics/${item.id}`, payload);
-        Object.assign(item, decorate(data));
-    } else {
-        const { data } = await axios.post('/statistics', payload);
-        Object.assign(item, decorate(data));
+    try {
+        const payload = {
+            label: item.label,
+            value: Number(item.value) || 0,
+            icon: item.icon || null,
+        };
+        if (item.id) {
+            const { data } = await axios.put(`/statistics/${item.id}`, payload);
+            Object.assign(item, decorate(data));
+            notify.success('Statistik diperbarui');
+        } else {
+            const { data } = await axios.post('/statistics', payload);
+            Object.assign(item, decorate(data));
+            notify.success('Statistik ditambahkan');
+        }
+    } catch (e) {
+        console.error(e);
+        notify.error('Gagal menyimpan statistik');
     }
 }
 
@@ -106,7 +125,14 @@ async function removeItem(item) {
         if (!confirm(`Hapus statistik "${item.label || 'statistik'}"?`)) {
             return;
         }
-        await axios.delete(`/statistics/${item.id}`);
+        try {
+            await axios.delete(`/statistics/${item.id}`);
+            notify.success('Statistik dihapus');
+        } catch (e) {
+            console.error(e);
+            notify.error('Gagal menghapus statistik');
+            return;
+        }
     }
     const index = statistics.findIndex((stat) => stat._key === item._key);
     if (index !== -1) {
@@ -115,4 +141,42 @@ async function removeItem(item) {
 }
 
 onMounted(loadStats);
+
+const dragIndex = ref(null);
+const dragOverIndex = ref(null);
+
+function onDragStart(index) { dragIndex.value = index; }
+function onDragEnter(index) { if (dragIndex.value === null) return; dragOverIndex.value = index; }
+async function onDrop(index) {
+    if (dragIndex.value === null) return;
+    const from = dragIndex.value;
+    const to = index;
+    if (from !== to) {
+        const [moved] = statistics.splice(from, 1);
+        statistics.splice(to, 0, moved);
+        await persistOrder();
+    }
+    dragIndex.value = null;
+    dragOverIndex.value = null;
+}
+function onDragEnd() { dragIndex.value = null; dragOverIndex.value = null; }
+
+async function persistOrder() {
+    try {
+        const updates = statistics
+            .filter((it) => it.id)
+            .map((it, i) => axios.put(`/statistics/${it.id}`, { order: i }));
+        if (updates.length) {
+            await Promise.all(updates);
+            notify.success('Urutan statistik tersimpan');
+        }
+    } catch (e) {
+        console.error('Gagal menyimpan urutan statistik:', e);
+        notify.error('Gagal menyimpan urutan');
+    }
+}
 </script>
+
+<style scoped>
+article[draggable="true"] { cursor: move; }
+</style>

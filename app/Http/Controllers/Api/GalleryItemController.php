@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GalleryItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class GalleryItemController extends Controller
 {
@@ -62,5 +63,42 @@ class GalleryItemController extends Controller
         $galleryItem->delete();
 
         return response()->json(['message' => 'Gallery item deleted']);
+    }
+
+    public function upload(Request $request): JsonResponse
+    {
+        $request->validate([
+            'gallery_album_id' => 'required|exists:gallery_albums,id',
+            'files' => 'required',
+            'files.*' => 'file|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        $albumId = (int) $request->input('gallery_album_id');
+        $files = $request->file('files');
+        if (!$files) {
+            return response()->json(['message' => 'No files uploaded'], 422);
+        }
+
+        $created = [];
+        $baseOrder = (int) (GalleryItem::where('gallery_album_id', $albumId)->max('order') ?? 0);
+        $index = 0;
+        foreach ($files as $file) {
+            $path = $file->store('gallery', 'public');
+            $url = Storage::url($path); // "/storage/..."
+
+            $title = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $item = GalleryItem::create([
+                'gallery_album_id' => $albumId,
+                'title' => $title,
+                'caption' => null,
+                'image_url' => $url,
+                'order' => $baseOrder + $index + 1,
+            ]);
+
+            $created[] = $item->fresh();
+            $index++;
+        }
+
+        return response()->json($created, 201);
     }
 }

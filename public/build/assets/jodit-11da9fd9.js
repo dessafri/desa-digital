@@ -1,0 +1,1 @@
+const i="https://cdn.jsdelivr.net/npm/jodit@3.24.7/build/jodit.min.js",o="https://cdn.jsdelivr.net/npm/jodit@3.24.7/build/jodit.min.css",n="undo,redo,|,paragraph,|,bold,italic,underline,|,ul,ol,indent,outdent,|,link,unlink,|,table,blockquote,|,source";function e(t={}){return{toolbarSticky:!1,minHeight:260,buttons:n,...t}}export{i as J,o as a,e as c};
